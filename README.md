@@ -80,7 +80,7 @@ This host will forward ports to your wireguard and traefik containers. Usually
 
 ## What now?
 Nothing, you're done! Your traefik dashboard should be accessible externally
-now. Navigate to https://<DNS NAME>/ and enter the username and password you set
+now. Navigate to https://\<DNS NAME\>/ and enter the username and password you set
 in the .env file.
 
 ## What about other containers?
