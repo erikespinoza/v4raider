@@ -1,0 +1,66 @@
+version: "3"
+
+services:
+  wireguard:
+    image: linuxserver/wireguard
+    container_name: wireguard
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    environment:
+      - "PUID=1000"
+      - "PGID=1000"
+      - "TZ=${TIMEZONE}"
+      - "SERVERURL=${WG_HOSTNAME}"
+      - "SERVERPORT=${WG_PORT}"
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
+      - 64.6.64.6
+    healthcheck:
+      test: ["CMD", "curl", "--interface", "wg0", "-o", "/dev/null", "-m", "3", "-s", "https://1.1.1.1/dns-query?ct=application/dns-json&name=www.google.com&type=AAAA"]
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+    volumes:
+      - ${DOCKER_DATA_PATH}/wireguard/:/config/
+      - /lib/modules/:/lib/modules/:ro
+    sysctls:
+      - "net.ipv4.conf.all.src_valid_mark=1"
+    restart: unless-stopped
+    networks:
+      - dmz
+
+  traefik:
+    image: traefik:latest
+    container_name: traefik
+    network_mode: "service:wireguard"
+    depends_on:
+      - wireguard
+    environment:
+      - "TZ=${TIMEZONE}"
+    volumes:
+      - ${DOCKER_DATA_PATH}/traefik/traefik.yml:/traefik.yml
+      - ${DOCKER_DATA_PATH}/traefik/dynamic/:/dynamic/
+      - ${DOCKER_DATA_PATH}/traefik/acme.json:/acme.json
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.middlewares.traefik-auth.basicauth.users=myuser:mypasshash"
+      - "traefik.http.routers.http_catchall.rule=HostRegexp(`{any:.+}`)"
+      - "traefik.http.routers.http_catchall.entrypoints=http"
+      - "traefik.http.routers.http_catchall.middlewares=https_redirect"
+      - "traefik.http.middlewares.https_redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.https_redirect.redirectscheme.permanent=true"
+      - "traefik.http.routers.traefik-secure.entrypoints=https"
+      - "traefik.http.routers.traefik-secure.rule=Host(`${WG_HOSTNAME}`)"
+      - "traefik.http.routers.traefik-secure.middlewares=traefik-auth"
+      - "traefik.http.routers.traefik-secure.tls=true"
+      - "traefik.http.routers.traefik-secure.tls.certresolver=http"
+      - "traefik.http.routers.traefik-secure.service=api@internal"
+      - "traefik.http.services.traefik.loadbalancer.server.port=8080"
+    restart: unless-stopped
+
+networks:
+  dmz:
+    external: true

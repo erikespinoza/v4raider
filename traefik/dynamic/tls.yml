@@ -1,0 +1,8 @@
+tls:
+  options:
+    default:
+      minVersion: VersionTLS12
+      sniStrict: true
+      curvePreferences:
+        - secp521r1
+        - secp384r1
