@@ -25,6 +25,7 @@ This uses the official [traefik](https://hub.docker.com/_/traefik) image & the
 * Healthcheck for Wireguard connection
 * iptables configuration for the VPS
 * Default IPs for both ends of the wireguard connection
+* Labels for watchtower / ouroboros to update correctly
 
 ## Requirements
 * VPS w/ public IPv4 address
@@ -41,20 +42,20 @@ other distributions fairly easily.
 This host must have docker & docker-compose installed.
 
 1. Install dependencies
-* ```sudo apt-get update && sudo apt-get --no-install-recommends install apache2-utils wireguard```
+: ```sudo apt-get update && sudo apt-get --no-install-recommends install apache2-utils wireguard```
 2. Clone this repo
-* ```git clone <repo> ; cd v4raider```
+: ```git clone <repo> ; cd v4raider```
 3. Set up your environment variables - more info below
-* ```cp env.example .env```
+: ```cp env.example .env```
 4. Edit ```.env``` with your favorite editor and customize. You will require the
    interface name from your VPS. As well as have an A record that points to your
    VPS.
 5. Run the script to generate configs
-* ```./setup.sh``` 
+: ```./setup.sh``` 
 6. Create dmz network
-* ```sudo docker create network dmz```
+: ```sudo docker create network dmz```
 7. Bring up wireguard and traefik
-* ```sudo docker-compose up -d```
+: ```sudo docker-compose up -d```
 
 This will generate rules.v4 and server-wg0.conf for your VPS.
 
@@ -63,20 +64,20 @@ This host will forward ports to your wireguard and traefik containers. Usually
 80 and 443.
 
 1. Remove potential conflict.
-* ```sudo apt-get autoremove --purge ufw```
+: ```sudo apt-get autoremove --purge ufw```
 2. Allow ip forwarding
-* ```echo 'net.ipv4.ip_forward = 1' | sudo tee -a /etc/sysctl.conf && sudo sysctl -p```
+: ```echo 'net.ipv4.ip_forward = 1' | sudo tee -a /etc/sysctl.conf && sudo sysctl -p```
 3. Install dependencies
-* ```sudo apt-get update && sudo apt-get --no-install-recommends install wireguard iptables-persistent```
+: ```sudo apt-get update && sudo apt-get --no-install-recommends install wireguard iptables-persistent```
 4. Place files generated on your docker host in the appropriate location. You
    can scp the files into the appropriate location or just paste in the content
    with your favorite text editor.
-* ```server-wg0.conf``` goes to ```/etc/wireguard/wg0.conf``` on this host
-* ```rules.v4``` goes to ```/etc/iptables/rules.v4``` on this host
+: ```server-wg0.conf``` goes to ```/etc/wireguard/wg0.conf``` on this host
+: ```rules.v4``` goes to ```/etc/iptables/rules.v4``` on this host
 5. Load iptables
-* ```sudo iptables-restore /etc/iptables/rules.v4```
+: ```sudo iptables-restore /etc/iptables/rules.v4```
 6. Start wireguard
-* ```sudo systemctl enable --now wg-quick@wg0```
+: ```sudo systemctl enable --now wg-quick@wg0```
 
 ## What now?
 Nothing, you're done! Your traefik dashboard should be accessible externally
