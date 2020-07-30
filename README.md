@@ -125,4 +125,4 @@ variables as docker-compose will choke on it.
 | DOCKER_DATA_PATH | Where wireguard and traefik will store config |
 
 If you set DOCKER_DATA_PATH, be sure to copy over the traefik and wireguard
-subdirectories included.
+subdirectories included after running ```./setup.sh``` on step 5.
