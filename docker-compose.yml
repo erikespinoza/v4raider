@@ -17,11 +17,11 @@ services:
       - 1.1.1.1
       - 8.8.8.8
       - 64.6.64.6
-    healthcheck:
-      test: ["CMD", "curl", "--interface", "wg0", "-o", "/dev/null", "-m", "3", "-s", "https://1.1.1.1/dns-query?ct=application/dns-json&name=www.google.com&type=AAAA"]
-      interval: 1m30s
-      timeout: 10s
-      retries: 3
+    #healthcheck:
+      #test: ["CMD", "curl", "--interface", "wg0", "-o", "/dev/null", "-m", "3", "-s", "https://1.1.1.1/dns-query?ct=application/dns-json&name=www.google.com&type=AAAA"]
+      #interval: 1m30s
+      #timeout: 10s
+      #retries: 3
     volumes:
       - ${DOCKER_DATA_PATH}/wireguard/:/config/
       - /lib/modules/:/lib/modules/:ro
