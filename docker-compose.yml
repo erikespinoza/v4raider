@@ -25,6 +25,9 @@ services:
     volumes:
       - ${DOCKER_DATA_PATH}/wireguard/:/config/
       - /lib/modules/:/lib/modules/:ro
+    labels:
+      - "com.centurylinklabs.watchtower.depends-on=traefik"
+      - "com.ouroboros.depends_on=traefik"  
     sysctls:
       - "net.ipv4.conf.all.src_valid_mark=1"
     restart: unless-stopped
@@ -45,8 +48,6 @@ services:
       - ${DOCKER_DATA_PATH}/traefik/acme.json:/acme.json
       - /var/run/docker.sock:/var/run/docker.sock:ro
     labels:
-      - "com.centurylinklabs.watchtower.depends-on=wireguard"
-      - "com.ouroboros.depends_on=wireguard"
       - "traefik.enable=true"
       - "traefik.http.middlewares.traefik-auth.basicauth.users=myuser:mypasshash"
       - "traefik.http.routers.http_catchall.rule=HostRegexp(`{any:.+}`)"
